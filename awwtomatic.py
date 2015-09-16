@@ -39,12 +39,12 @@ newFoundURLs = []   #URLs that have been trimmed down to just the imgur identifi
 for i in xrange(0,4):
   #Get the source code for the page of interest, store it to a file locally.
   print 'Acquiring ' + acquisitionPageURL
-  rAwwHtml = urllib.urlopen(acquisitionPageURL).read()
-  localAwwTxt = open('localAww.txt', 'w')
-  localAwwTxt.write(rAwwHtml)
-  localAwwTxt.close()
+  localAwwTxt = urllib.urlopen(acquisitionPageURL).read()
+  #localAwwTxt = open('localAww.txt', 'w')
+  #localAwwTxt.write(rAwwHtml)
+  #localAwwTxt.close()
   #Open the document containing the HTML, read into memory.
-  localAwwTxt = open('localAww.txt', 'r').read()
+  #localAwwTxt = open('localAww.txt', 'r').read()
   addToAllFoundURLs(localAwwTxt, allFoundURLs)
   nextPageSearchSubstring = pageLinkSearchSubstring + str((i + 1) * 25)
   nextPageNear = localAwwTxt.find(nextPageSearchSubstring)
@@ -113,11 +113,11 @@ for url in newFoundURLs:
     pageSearchStringWEBM = 'gifUrl:'
     pageImgurURLPreamble = 'http://imgur.com/'
     #Get a local copy of the relevant imgur page.
-    rAwwHtml = urllib.urlopen(pageImgurURLPreamble + url).read()
-    localImgurTxt = open('localImgur.txt', 'w')
-    localImgurTxt.write(rAwwHtml)
-    localImgurTxt.close()
-    localImgurTxt = open('localImgur.txt', 'r').read()
+    localImgurTxt = urllib.urlopen(pageImgurURLPreamble + url).read()
+    #localImgurTxt = open('localImgur.txt', 'w')
+    #localImgurTxt.write(rAwwHtml)
+    #localImgurTxt.close()
+    #localImgurTxt = open('localImgur.txt', 'r').read()
     
     #Determine if the file can be saved as a .PNG
     if(localImgurTxt.find(pageSearchStringPNG) != -1):
