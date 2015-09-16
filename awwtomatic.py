@@ -1,4 +1,4 @@
-#Awwtomatic v0.3
+#Awwtomatic v0.4
 #Automatically fetches the source code of http://www.reddit.com/r/aww/ and downloads .png, .jpg, .jpeg, .gifv, and .gif files from imgur.
 #To be implemented: downloading files on imgur pages, downloading imgur albums, checking if a file exists already (under the same name or an md5 check.)
 
@@ -6,9 +6,11 @@
 import urllib
 import time
 
+DEBUG = True
+
 #Make sure that the User-Agent isn't the default so reddit doesn't disrupt things.
 class awwURLOpener(urllib.FancyURLopener):
-  version = '<platform>:awwtomatic:0.3 (by /u/<redditUsername>)'
+  version = '<platform>:awwtomatic:0.4 (by /u/<redditUsername>)'
   
 def addToAllFoundURLs(textDocument, appendToThis):
   awwSearchIndex = 0
@@ -38,13 +40,9 @@ newFoundURLs = []   #URLs that have been trimmed down to just the imgur identifi
 
 for i in xrange(0,4):
   #Get the source code for the page of interest, store it to a file locally.
-  print 'Acquiring ' + acquisitionPageURL
-  rAwwHtml = urllib.urlopen(acquisitionPageURL).read()
-  localAwwTxt = open('localAww.txt', 'w')
-  localAwwTxt.write(rAwwHtml)
-  localAwwTxt.close()
-  #Open the document containing the HTML, read into memory.
-  localAwwTxt = open('localAww.txt', 'r').read()
+  if(DEBUG):  print 'Acquiring ' + acquisitionPageURL
+  #Open the applicable page source.
+  localAwwTxt = urllib.urlopen(acquisitionPageURL).read()
   addToAllFoundURLs(localAwwTxt, allFoundURLs)
   nextPageSearchSubstring = pageLinkSearchSubstring + str((i + 1) * 25)
   nextPageNear = localAwwTxt.find(nextPageSearchSubstring)
@@ -103,7 +101,7 @@ for url in newFoundURLs:
   if(url.find(obtainAlbumSearchSubstring) != -1):
     #To be implemented
     
-    print '  Failed Album.'
+    if(DEBUG):  print '  Failed Album.'
     #entries = entries + 1
     imgurAlbum = imgurAlbum + 1
     
@@ -112,12 +110,8 @@ for url in newFoundURLs:
     pageSearchStringPNG = '<link rel="image_src"'
     pageSearchStringWEBM = 'gifUrl:'
     pageImgurURLPreamble = 'http://imgur.com/'
-    #Get a local copy of the relevant imgur page.
-    rAwwHtml = urllib.urlopen(pageImgurURLPreamble + url).read()
-    localImgurTxt = open('localImgur.txt', 'w')
-    localImgurTxt.write(rAwwHtml)
-    localImgurTxt.close()
-    localImgurTxt = open('localImgur.txt', 'r').read()
+    #Open the imgur source.
+    localImgurTxt = urllib.urlopen(pageImgurURLPreamble + url).read()
     
     #Determine if the file can be saved as a .PNG
     if(localImgurTxt.find(pageSearchStringPNG) != -1):
@@ -125,7 +119,7 @@ for url in newFoundURLs:
       pageBeginIndex = localImgurTxt.find('"', pageNearIndex, len(localImgurTxt)) + 1               #The first " after the pageNearIndex is one before the beginning of the URL
       pageEndIndex = localImgurTxt.find('"', pageBeginIndex + 1, len(localImgurTxt))                #The first " after the pageBeginIndex is the end of the URL
       newFoundURLs.append(localImgurTxt[pageBeginIndex:pageEndIndex])                               #Append the found URL to the end of the list so it gets the image on a future pass
-      print '  GOT IMGURPAGE! (.png)  Will save file on future pass.'
+      if(DEBUG):  print '  GOT IMGURPAGE (.png)  Will save file on future pass.'
     
     #Determine if the file can be saved as a .WEBM
     elif(localImgurTxt.find(pageSearchStringWEBM) != -1):
@@ -135,19 +129,20 @@ for url in newFoundURLs:
       #This is specific for .gif files since the page is formatted differently
       gifURLPreamble = 'http:'
       newFoundURLs.append(gifURLPreamble + localImgurTxt[pageBeginIndex:pageEndIndex])              #Append the found URL to the end of the list so it gets the image on a future pass
-      print '  GOT IMGURPAGE! (.webm) Will save file on future pass.'
+      if(DEBUG):  print '  GOT IMGURPAGE (.webm) Will save file on future pass.'
       
     else:
       falseEntries = falseEntries + 1
-      print '  Failed IMGURPAGE'
+      if(DEBUG):  print '  Failed IMGURPAGE'
     imgurPage = imgurPage + 1  
     
   #Search for .png files and download
   elif(url.find(obtainPNGSearchSusbtring) != -1):
     extensionBegin = url.find(obtainPNGSearchSusbtring)
     urllib.urlretrieve(url[0:extensionBegin] + '.png', folder + url[19:extensionBegin] + '.png')
-    print url
-    print '  GOT .PNG!'
+    if(DEBUG):
+      print url
+      print '  GOT .PNG'
     entries = entries + 1
     directURL = directURL + 1
     
@@ -155,8 +150,9 @@ for url in newFoundURLs:
   elif(url.find(obtainJPGSearchSusbtring) != -1):
     extensionBegin = url.find(obtainJPGSearchSusbtring)
     urllib.urlretrieve(url[0:extensionBegin] + '.png', folder + url[19:extensionBegin] + '.png')
-    print url
-    print '  GOT .JPG!'
+    if(DEBUG):
+      print url
+      print '  GOT .JPG'
     entries = entries + 1
     directURL = directURL + 1
     
@@ -164,8 +160,9 @@ for url in newFoundURLs:
   elif(url.find(obtainJPEGSearchSusbtring) != -1):
     extensionBegin = url.find(obtainJPEGSearchSusbtring)
     urllib.urlretrieve(url[0:extensionBegin] + '.png', folder + url[19:extensionBegin] + '.png')
-    print url
-    print '  GOT .JPEG!'
+    if(DEBUG):
+      print url
+      print '  GOT .JPEG'
     entries = entries + 1
     directURL = directURL + 1
     
@@ -174,8 +171,9 @@ for url in newFoundURLs:
   elif(url.find(obtainGIFVSearchSusbtring) != -1):
     extensionBegin = url.find(obtainGIFVSearchSusbtring)
     urllib.urlretrieve(url[0:extensionBegin] + '.webm', folder + url[19:extensionBegin] + '.webm')
-    print url
-    print '  GOT .GIFV!'
+    if(DEBUG):
+      print url
+      print '  GOT .GIFV'
     entries = entries + 1
     directURL = directURL + 1
     
@@ -183,17 +181,21 @@ for url in newFoundURLs:
   elif(url.find(obtainGIFSearchSusbtring) != -1):
     extensionBegin = url.find(obtainGIFSearchSusbtring)
     urllib.urlretrieve(url[0:extensionBegin] + '.webm', folder + url[19:extensionBegin] + '.webm')
-    print url
-    print '  GOT .GIF!'
+    if(DEBUG):  
+      print url
+      print '  GOT .GIF'
     entries = entries + 1
     directURL = directURL + 1
     
   else:
-    print url
-    print '  Failed Other,'
+    if(DEBUG):
+      print url
+      print '  Failed Other,'
     falseEntries = falseEntries + 1
-print str(entries) + ' valid entries.'
-print str(falseEntries) + ' invalid entries.'
-print str(imgurAlbum) + ' albums'
-print str(imgurPage) + ' pages'
-print str(directURL) + ' images'
+
+if(DEBUG):
+  print str(entries) + ' valid entries.'
+  print str(falseEntries) + ' invalid entries.'
+  print str(imgurAlbum) + ' albums'
+  print str(imgurPage) + ' pages'
+  print str(directURL) + ' images'
