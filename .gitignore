@@ -1,0 +1,5 @@
+#Ignore files and directories relevant to specific users
+acquired.txt
+downloads
+localAww.txt
+localImgur.txt
